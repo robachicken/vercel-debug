@@ -1,4 +1,3 @@
-param ([Parameter(Mandatory)]$domain)
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
@@ -7,6 +6,8 @@ param ([Parameter(Mandatory)]$domain)
 echo "******************"
 echo "**** STARTING ****"
 echo "******************"
+
+$domain = Read-Host "Please enter your domain"
 
 # Show affected domain
 echo "Domain: ${domain}"
