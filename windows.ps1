@@ -7,7 +7,10 @@ echo "******************"
 echo "**** STARTING ****"
 echo "******************"
 
-$domain = Read-Host "Please enter your domain"
+# Ask for domain
+While (!$domain) {
+    $domain = Read-Host "Please enter your domain"
+}
 
 # Show affected domain
 echo "Domain: ${domain}"
