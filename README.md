@@ -1,6 +1,6 @@
 Commands to run:
 
-## Linux: 
+## Mac: 
     read domain\?"Enter Affected Domain: " && curl -s https://raw.githubusercontent.com/robachicken/test-ping/main/linux.sh | bash -s $domain | tee vercel-debug.txt
 
 ## Windows: 
