@@ -7,8 +7,9 @@ echo "******************"
 echo "**** STARTING ****"
 echo "******************"
 
-# Ask for domain
-While (!$domain) {
+# Ask for domain and don't accept nothing
+$domain = $null
+while (!$domain) {
     $domain = Read-Host "Please enter your domain"
 }
 
