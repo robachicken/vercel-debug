@@ -7,13 +7,13 @@ echo "**** STARTING ****"
 echo "******************"
 
 # Input affected domain
-read -p "Enter enter domain (eg vercel.com): " domain
+read 1\?"Enter Affected Domain: "
 echo "Domain: ${1:=vercel.com}"
 
 # Capture time/date
 echo "Timestamp: $(date)"
 
-# Output the reporter's IP address
+# Output the reporters IP address
 echo "IP Info: "
 curl -s https://ipinfo.io/
 echo ""
