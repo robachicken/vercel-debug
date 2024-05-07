@@ -87,9 +87,10 @@ echo ""
 echo "└───────────────────────────────────────"
 echo ""
 
-# Output mtr result commented out due to Sudo requirement
-# for i in "76.76.21.21" "76.76.21.22" "76.76.21.9" "76.76.21.241" "76.76.21.164" "76.76.21.142" "76.76.21.61" "76.76.21.93" "76.76.21.123" "76.76.21.98";do echo "Testing $i" && sudo mtr -wr -c 20 $i;done
+# Output mtr result. Commented out due to Sudo requirement
+# for i in "76.76.21.21" "76.76.21.22" "76.76.21.9" "76.76.21.22" "76.76.21.61" "76.76.21.93" "76.76.21.98" "76.76.21.123" "76.76.21.142" "76.76.21.164" "76.76.21.241";do echo "Testing $i" && sudo mtr -wr -c 20 $i;done
 
+# Calculate duration
 end=`date +%s`
 duration=$((end-start))
 
