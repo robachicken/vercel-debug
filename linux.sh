@@ -2,8 +2,7 @@
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
-echo 'Domain to test against: '
-read domain
+read -p "Domain to test: " domain </dev/tty
 
 # Ensure script has domain argument passed
 #if [[ $# -eq 0 ]] ; then
