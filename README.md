@@ -1,6 +1,10 @@
 # Vercel Support DNS debug scripts
 
-Reach out to the Vercel Support here: [vercel.com/help](https://vercel.com/help)
+> [!WARNING]
+> This repository needs to be moved to [vercel-support](https://github.com/vercel-support) once finished.
+
+> [!TIP]
+> Reach out to the Vercel Support here: [vercel.com/help](https://vercel.com/help)
 
 If you're having trouble connecting to your Vercel deployment, you might be asked by our support engineers to run these debug commands.
 
