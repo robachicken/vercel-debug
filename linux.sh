@@ -6,10 +6,13 @@ echo "Domain to test: "
 read domain </dev/tty
 
 # Ensure script has domain argument passed
-#if [[ $# -eq 0 ]] ; then
-#    echo "** No domain entered.**\nIf you're manually running this script please ensure the domain is added after the script name.\neg 'vercel-debug.sh yourdomain.com'"
-#    exit 0
-#fi
+if [[ $domain -eq 0 ]] ; then
+  echo "┌───────────────────────────────────────"
+  echo "│ No domain entered, but it is required "
+  echo "| Exiting..."
+  echo "└───────────────────────────────────────"
+  exit 0
+fi
 
 # Measure time 
 start=`date +%s`
