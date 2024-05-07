@@ -82,7 +82,7 @@ echo ""
 echo "┌───────────────────────────────────────"
 echo "├─────── Output of ${domain}"
 echo "" 
-curl -sv https://${domain}
+curl -sv https://${domain} --stderr -
 echo ""
 echo "└───────────────────────────────────────"
 echo ""
