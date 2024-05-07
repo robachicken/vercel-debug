@@ -25,7 +25,7 @@ echo ""
 # Output the reporters IP address
 echo "┌───────────────────────────────────────"
 echo "├─────── IP Information "
-echo "│" 
+echo "" 
 curl -s https://ipinfo.io/
 echo ""
 echo "└───────────────────────────────────────"
@@ -34,21 +34,21 @@ echo ""
 # Test reachability to Vercel A record
 echo "┌───────────────────────────────────────"
 echo "├─────── Testing 76.76.21.21 "
-echo "│" 
+echo "" 
 ping -c 4 76.76.21.21
-echo "│" 
+echo "" 
 traceroute -w 1 -m 30 76.76.21.21
 echo "└───────────────────────────────────────"
 echo ""
 
 # Test reachability to Vercel CNAME records
-for i in "76.76.21.22" "76.76.21.9" "76.76.21.241" "76.76.21.164" "76.76.21.142" "76.76.21.61" "76.76.21.93" "76.76.21.123" "76.76.21.98"
+for i in "76.76.21.9" "76.76.21.22" "76.76.21.61" "76.76.21.93" "76.76.21.98" "76.76.21.123" "76.76.21.142" "76.76.21.164" "76.76.21.241"
 do 
   echo "┌───────────────────────────────────────"
   echo "├─────── Testing $i "
-  echo "│" 
+  echo "" 
   ping -c 4 $i
-  echo "│" 
+  echo "" 
   traceroute -w 1 -m 30 $i
   echo "└───────────────────────────────────────"
   echo ""
@@ -57,7 +57,7 @@ done
 # Resolve affected domain
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} "
-echo "│" 
+echo "" 
 dig ${1}
 echo "└───────────────────────────────────────"
 echo ""
@@ -65,7 +65,7 @@ echo ""
 # Resolve affected domain via public DNS
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} via 8.8.8.8"
-echo "│" 
+echo "" 
 dig ${1} @8.8.8.8
 echo "└───────────────────────────────────────"
 echo ""
@@ -73,7 +73,7 @@ echo ""
 # Resolve affected domain directly
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} via trace"
-echo "│" 
+echo "" 
 dig ${1} +trace
 echo "└───────────────────────────────────────"
 echo ""
@@ -81,7 +81,7 @@ echo ""
 # Output content of affected domain
 echo "┌───────────────────────────────────────"
 echo "├─────── Output of ${domain}"
-echo "│" 
+echo "" 
 curl -sv https://${domain}
 echo ""
 echo "└───────────────────────────────────────"
