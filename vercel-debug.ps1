@@ -71,7 +71,7 @@ echo ""
 echo "+---------------------------------------"
 echo "+------- Output of ${domain}"
 echo "" 
-curl.exe -sv https://${domain}
+curl.exe -sv https://${domain} --stderr -
 echo ""
 echo "+---------------------------------------"
 echo ""
