@@ -2,17 +2,12 @@
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
-echo "Domain to test: "
-read domain </dev/tty
-
-# Ensure script has domain argument passed
-if [[ $domain -eq 0 ]] ; then
-  echo "┌───────────────────────────────────────"
-  echo "│ No domain entered, but it is required "
-  echo "| Exiting..."
-  echo "└───────────────────────────────────────"
-  exit 0
-fi
+domain=""
+while [[ -z "$domain" ]]
+do
+  echo "Domain to test: "
+  read domain </dev/tty
+done
 
 # Measure time 
 start=`date +%s`
