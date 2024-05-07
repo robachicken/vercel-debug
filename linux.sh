@@ -2,63 +2,106 @@
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
+echo 'Domain to test against: '
+read domain
+
 # Ensure script has domain argument passed
-if [[ $# -eq 0 ]] ; then
-    echo "** No domain entered.**\nIf you're manually running this script please ensure the domain is added after the script name.\neg 'vercel-debug.sh yourdomain.com'"
-    exit 0
-fi
+#if [[ $# -eq 0 ]] ; then
+#    echo "** No domain entered.**\nIf you're manually running this script please ensure the domain is added after the script name.\neg 'vercel-debug.sh yourdomain.com'"
+#    exit 0
+#fi
 
-echo "******************"
-echo "**** STARTING ****"
-echo "******************"
+# Measure time 
+start=`date +%s`
 
+echo "┌───────────────────────────────────────"
+echo "├─────── STARTING"
+echo "│" 
 # Show affected domain
-echo "Domain: ${1}"
-
+echo "│ Domain to test: ${domain} "
 # Capture time/date
-echo "Timestamp: $(date)"
+echo "│ Timestamp: $(date)"
+echo "└───────────────────────────────────────"
+echo ""
 
 # Output the reporters IP address
-echo "IP Info: "
+echo "┌───────────────────────────────────────"
+echo "├─────── IP Information "
+echo "│" 
 curl -s https://ipinfo.io/
+echo ""
+echo "└───────────────────────────────────────"
 echo ""
 
 # Test reachability to Vercel A record
-echo "Testing 76.76.21.21: "
+echo "┌───────────────────────────────────────"
+echo "├─────── Testing 76.76.21.21 "
+echo "│" 
 ping -c 4 76.76.21.21
 traceroute -w 1 -m 30 76.76.21.21
+echo "└───────────────────────────────────────"
+echo ""
 
 # Test reachability to Vercel CNAME records
-for i in "76.76.21.22" "76.76.21.9" "76.76.21.241" "76.76.21.164" "76.76.21.142" "76.76.21.61" "76.76.21.93" "76.76.21.123" "76.76.21.98"
-do 
-  echo "Testing $i"
-  ping -c 4 $i
-  traceroute -w 1 -m 30 $i
-done
+#for i in "76.76.21.22" "76.76.21.9" "76.76.21.241" "76.76.21.164" "76.76.21.142" "76.76.21.61" "76.76.21.93" "76.76.21.123" "76.76.21.98"
+#do 
+#  echo "┌───────────────────────────────────────"
+#  echo "├─────── Testing $i "
+#  echo "│" 
+#  ping -c 4 $i
+#  traceroute -w 1 -m 30 $i
+#  echo "└───────────────────────────────────────"
+#  echo ""
+#done
 
 # Resolve affected domain
-echo "dig ${1} "
+echo "┌───────────────────────────────────────"
+echo "├─────── dig ${domain} "
+echo "│" 
 dig ${1}
+echo "└───────────────────────────────────────"
+echo ""
 
 # Resolve affected domain via public DNS
-echo "dig ${1} via 8.8.8.8: "
+echo "┌───────────────────────────────────────"
+echo "├─────── dig ${domain} via 8.8.8.8"
+echo "│" 
 dig ${1} @8.8.8.8
+echo "└───────────────────────────────────────"
+echo ""
 
 # Resolve affected domain directly
-echo "dig ${1} via trace: "
+echo "┌───────────────────────────────────────"
+echo "├─────── dig ${domain} via trace"
+echo "│" 
 dig ${1} +trace
+echo "└───────────────────────────────────────"
+echo ""
 
 # Output content of affected domain
-echo "Output of ${1}"
-curl -sv https://${1}
+echo "┌───────────────────────────────────────"
+echo "├─────── Output of ${domain}"
+echo "│" 
+curl -sv https://${domain}
+echo ""
+echo "└───────────────────────────────────────"
+echo ""
 
 # Output mtr result commented out due to Sudo requirement
 # for i in "76.76.21.21" "76.76.21.22" "76.76.21.9" "76.76.21.241" "76.76.21.164" "76.76.21.142" "76.76.21.61" "76.76.21.93" "76.76.21.123" "76.76.21.98";do echo "Testing $i" && sudo mtr -wr -c 20 $i;done
 
+end=`date +%s`
+duration=$((end-start))
+
 echo ""
-echo "******************"
-echo "**** FINISHED ****"
-echo "******************"
+
+echo "┌───────────────────────────────────────"
+echo "│ Time elapsed: ${duration} seconds"
+echo "│" 
+echo "├─────── FINISHED"
+echo "└───────────────────────────────────────"
+echo ""
+echo ""
 echo ""
 echo "File can be found at $(pwd)/vercel-debug.txt"
 echo ""
