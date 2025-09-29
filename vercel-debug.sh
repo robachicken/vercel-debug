@@ -1,16 +1,40 @@
-#/bin/bash
+#!/bin/bash
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
+# Ask for domain and don't accept no domain
+# Also, we need to ensure not to pass an URL (https://example.com/path) 
+# rather than only the domain name
 domain=""
-while [[ -z "$domain" ]]
+while [[ -z "$domain" || "$domain" =~ '/' ]]
 do
-  echo "Domain to test: "
+  echo "Domain to test (e.g. example.com): "
   read domain </dev/tty
 done
 
+# Lookup the DNS record to return the IP Ranges
+echo "┌───────────────────────────────────────"
+echo "├─────── Fetching IP Addresses"
+echo "│" 
+# Make curl request to the IP Range Lookup API
+ip_addresses=$(curl -s -X POST "https://v0-ip-address-lookup-api.vercel.app" -d "${domain}")
+# Check if API call failed, returned empty, or returned special error responses
+# If any of these conditions are true, exit immediately without running tests
+if [ $? -ne 0 ] || [ -z "$ip_addresses" ] || [ "$ip_addresses" = "Not on Vercel" ] || [ "$ip_addresses" = "DNS lookup failed" ]; then
+    echo "│ Range lookup failed - ${ip_addresses:-No response from API}"
+    echo "└───────────────────────────────────────"
+    echo ""
+    exit 0
+else
+    echo "│ ${domain} IP range: $ip_addresses"
+    echo "└───────────────────────────────────────"
+    echo ""
+    # Parse response and convert to array
+    ip_range=($(echo "$ip_addresses" | tr ',' ' '))
+fi
+
 # Measure time 
-start=`date +%s`
+start=$(date +%s)
 
 echo "┌───────────────────────────────────────"
 echo "├─────── STARTING"
@@ -18,7 +42,8 @@ echo "│"
 # Show affected domain
 echo "│ Domain to test: ${domain} "
 # Capture time/date
-echo "│ Timestamp: $(date)"
+echo "│ Timestamp (UTC): $(date -u)"
+echo "│ Timestamp (Local): $(date)"
 echo "└───────────────────────────────────────"
 echo ""
 
@@ -31,25 +56,23 @@ echo ""
 echo "└───────────────────────────────────────"
 echo ""
 
-# Test reachability to Vercel A record
-echo "┌───────────────────────────────────────"
-echo "├─────── Testing 76.76.21.21 "
-echo "" 
-ping -c 4 76.76.21.21
-echo "" 
-traceroute -w 1 -m 30 76.76.21.21
-echo "└───────────────────────────────────────"
-echo ""
-
 # Test reachability to Vercel CNAME records
-for i in "76.76.21.9" "76.76.21.22" "76.76.21.61" "76.76.21.93" "76.76.21.98" "76.76.21.123" "76.76.21.142" "76.76.21.164" "76.76.21.241"
+for i in "${ip_range[@]}"
 do 
   echo "┌───────────────────────────────────────"
   echo "├─────── Testing $i "
   echo "" 
-  ping -c 4 $i
+  # Get the headers of the site, bypassing DNS resolution and querying domain via IP directly
+  curl -svko /dev/null https://${domain} --connect-to ::${i} --stderr -
   echo "" 
-  traceroute -w 1 -m 30 $i
+  # Ping the IP
+  ping -c 4 $i
+  # Skip traceroute if ping succeeds
+  if [ $? -ne 0 ]
+  then
+    echo "" 
+    traceroute -w 1 -m 30 -I $i
+  fi
   echo "└───────────────────────────────────────"
   echo ""
 done
@@ -58,7 +81,7 @@ done
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} "
 echo "" 
-dig ${1}
+dig ${domain}
 echo "└───────────────────────────────────────"
 echo ""
 
@@ -66,7 +89,7 @@ echo ""
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} via 8.8.8.8"
 echo "" 
-dig ${1} @8.8.8.8
+dig ${domain} @8.8.8.8
 echo "└───────────────────────────────────────"
 echo ""
 
@@ -74,7 +97,7 @@ echo ""
 echo "┌───────────────────────────────────────"
 echo "├─────── dig ${domain} via trace"
 echo "" 
-dig ${1} +trace
+dig ${domain} +trace
 echo "└───────────────────────────────────────"
 echo ""
 
@@ -82,16 +105,13 @@ echo ""
 echo "┌───────────────────────────────────────"
 echo "├─────── Output of ${domain}"
 echo "" 
-curl -sv https://${domain} --stderr -
+curl -svk https://${domain} --stderr -
 echo ""
 echo "└───────────────────────────────────────"
 echo ""
 
-# Output mtr result. Commented out due to Sudo requirement
-# for i in "76.76.21.21" "76.76.21.22" "76.76.21.9" "76.76.21.22" "76.76.21.61" "76.76.21.93" "76.76.21.98" "76.76.21.123" "76.76.21.142" "76.76.21.164" "76.76.21.241";do echo "Testing $i" && sudo mtr -wr -c 20 $i;done
-
 # Calculate duration
-end=`date +%s`
+end=$(date +%s)
 duration=$((end-start))
 
 echo ""
