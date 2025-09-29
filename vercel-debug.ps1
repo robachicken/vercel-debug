@@ -1,10 +1,33 @@
 # Run these commands from the affected/problematic network
 # Once completed, send the file to Vercel support
 
-# Ask for domain and don't accept nothing
+# Ask for domain and don't accept no domain
+# Also, we need to ensure not to pass an URL (https://example.com/path) 
+# rather than only the domain name
 $domain = $null
-while (!$domain) {
-    $domain = Read-Host "Please enter your domain"
+while ((!$domain) -or ($domain -Match "`/")) {
+    $domain = Read-Host "Domain to test (e.g. example.com): "
+}
+
+# Lookup the DNS record to return the IP Ranges
+echo "+---------------------------------------"
+echo "+------- Fetching IP Addresses"
+echo "|" 
+# Make curl request to the IP Range Lookup API
+$ip_addresses = curl.exe -s -X POST "https://v0-ip-address-lookup-api.vercel.app" -d "${domain}"
+# Check if API call failed, returned empty, or returned special error responses
+# If any of these conditions are true, exit immediately without running tests
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($ip_addresses) -or $ip_addresses -eq "Not on Vercel" -or $ip_addresses -eq "DNS lookup failed") {
+    echo "| Range lookup failed - $(if ([string]::IsNullOrEmpty($ip_addresses)) { 'No response from API' } else { $ip_addresses })"
+    echo "+---------------------------------------"
+    echo ""
+    exit 0
+} else {
+    echo "| ${domain} IP range: $ip_addresses"
+    echo "+---------------------------------------"
+    echo ""
+    # Parse response and convert to array
+    $ip_range = $ip_addresses -split ','
 }
 
 # Measure time 
@@ -16,7 +39,8 @@ echo "|"
 # Show affected domain
 echo "| Domain to test: ${domain} "
 # Capture time/date
-echo "| Timestamp: $(get-date)"
+echo "| Timestamp (UTC): $((get-date).ToUniversalTime())"
+echo "| Timestamp (Local): $(get-date)"
 echo "+---------------------------------------"
 echo ""
 
@@ -40,13 +64,20 @@ echo "+---------------------------------------"
 echo ""
 
 # Test reachability to Vercel CNAME records
-ForEach ($i in "76.76.21.9","76.76.21.22","76.76.21.61","76.76.21.93","76.76.21.98","76.76.21.123","76.76.21.142","76.76.21.164","76.76.21.241") {
+ForEach ($i in $ip_range) {
   echo "+---------------------------------------"
   echo "+------- Testing $i "
   echo "" 
-  ping -n 4 $i
+  # Get the headers of the site, bypassing DNS resolution and querying domain via IP directly
+  curl.exe -svko NUL https://$domain --connect-to ::$i --stderr -
   echo "" 
-  tracert -w 1 -h 30 $i
+  # Ping the IP
+  ping -n 4 $i
+  # Skip traceroute if ping succeeds
+  if ($? -eq $false) {
+   echo "" 
+    tracert -w 1 -h 30 $i
+  }
   echo "+---------------------------------------"
   echo ""
 }
@@ -71,13 +102,10 @@ echo ""
 echo "+---------------------------------------"
 echo "+------- Output of ${domain}"
 echo "" 
-curl.exe -sv https://${domain} --stderr -
+curl.exe -svk https://${domain} --stderr -
 echo ""
 echo "+---------------------------------------"
 echo ""
-
-# Output pathping. Not needed at present.
-# ForEach ($i in "76.76.21.21","76.76.21.9","76.76.21.22","76.76.21.61","76.76.21.93","76.76.21.98","76.76.21.123","76.76.21.142","76.76.21.164","76.76.21.241") { echo "Testing $i"; pathping -h 30 $i}
 
 # Calculate duration
 $end = get-date
@@ -86,12 +114,12 @@ $duration = ($end-$start)
 echo ""
 
 echo "+---------------------------------------"
-echo "| Time elapsed: $duration seconds"
+echo "| Time elapsed: $($duration.TotalSeconds) seconds"
 echo "|" 
 echo "+------- FINISHED"
 echo "+---------------------------------------"
 echo ""
 echo ""
 echo ""
-echo "File can be found at $(pwd)\vercel-debug.txt"
+echo "File can be found at $(Get-Location)\vercel-debug.txt"
 echo ""
