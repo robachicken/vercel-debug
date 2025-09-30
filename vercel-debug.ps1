@@ -53,8 +53,20 @@ echo ""
 echo "+---------------------------------------"
 echo ""
 
+# Test reachability to Vercel A record
+echo "+---------------------------------------"
+echo "+------- Testing 76.76.21.21 "
+echo "" 
+ping -n 4 76.76.21.21
+echo "" 
+tracert -w 1 -h 30 76.76.21.21
+echo "+---------------------------------------"
+echo ""
+
 # Test reachability to Vercel CNAME records
 ForEach ($i in $ip_range) {
+  # Trim any whitespace from IP address
+  $i = $i.Trim()
   echo "+---------------------------------------"
   echo "+------- Testing $i "
   echo "" 
@@ -64,7 +76,7 @@ ForEach ($i in $ip_range) {
   # Ping the IP
   ping -n 4 $i
   # Skip traceroute if ping succeeds
-  if ($? -eq $false) {
+  if ($LASTEXITCODE -ne 0) {
    echo "" 
     tracert -w 1 -h 30 $i
   }
@@ -104,7 +116,7 @@ $duration = ($end-$start)
 echo ""
 
 echo "+---------------------------------------"
-echo "| Time elapsed: $($duration.TotalSeconds) seconds"
+echo "| Time elapsed: $([math]::Round($duration.TotalSeconds, 1)) seconds"
 echo "|" 
 echo "+------- FINISHED"
 echo "+---------------------------------------"
