@@ -61,16 +61,18 @@ for i in "${ip_range[@]}"
 do 
   echo "┌───────────────────────────────────────"
   echo "├─────── Testing $i "
-  echo "" 
+  echo "Checking headers via $i"  
   # Get the headers of the site, bypassing DNS resolution and querying domain via IP directly
-  curl -svko /dev/null https://${domain} --connect-to ::${i} --stderr -
-  echo "" 
+  curl -svko /dev/null https://${domain} --connect-to ::${i} --max-time 3 --stderr -
   # Ping the IP
+  echo ""
+  echo "Checking ping to $i" 
   ping -c 4 $i
   # Skip traceroute if ping succeeds
   if [ $? -ne 0 ]
   then
-    echo "" 
+    echo ""
+    echo "Checking tracert to $i" 
     traceroute -w 1 -m 30 -I $i
   fi
   echo "└───────────────────────────────────────"
