@@ -57,15 +57,17 @@ echo ""
 ForEach ($i in $ip_range) {
   echo "+---------------------------------------"
   echo "+------- Testing $i "
-  echo "" 
+  echo "Checking headers via $i" 
   # Get the headers of the site, bypassing DNS resolution and querying domain via IP directly
-  curl.exe -svko NUL https://$domain --connect-to ::$i --stderr -
-  echo "" 
+  curl.exe -svko NUL https://$domain --connect-to ::$i --max-time 3 --stderr -
   # Ping the IP
+  echo ""
+  echo "Checking ping to $i" 
   ping -n 4 $i
   # Skip traceroute if ping succeeds
   if ($LASTEXITCODE -ne 0) {
-   echo "" 
+   echo ""
+   echo "Checking tracert to $i" 
     tracert -w 1 -h 30 $i
   }
   echo "+---------------------------------------"
