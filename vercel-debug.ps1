@@ -21,13 +21,13 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($ip_addresses) -or $ip_addre
     echo "| Range lookup failed - $(if ([string]::IsNullOrEmpty($ip_addresses)) { 'No response from API' } else { $ip_addresses })"
     echo "+---------------------------------------"
     echo ""
-    exit 0
+    return
 } else {
     echo "| ${domain} IP range: $ip_addresses"
     echo "+---------------------------------------"
     echo ""
     # Parse response and convert to array
-    $ip_range = $ip_addresses -split ','
+    $ip_range = ($ip_addresses -split ',').Trim()
 }
 
 # Measure time 
@@ -55,19 +55,19 @@ echo ""
 
 # Test reachability to Vercel CNAME records
 ForEach ($i in $ip_range) {
-  # Trim any whitespace from IP address
-  $i = $i.Trim()
   echo "+---------------------------------------"
   echo "+------- Testing $i "
-  echo "" 
+  echo "Checking headers via $i" 
   # Get the headers of the site, bypassing DNS resolution and querying domain via IP directly
-  curl.exe -svko NUL https://$domain --connect-to ::$i --stderr -
-  echo "" 
+  curl.exe -svko NUL https://$domain --connect-to ::$i --max-time 3 --stderr -
   # Ping the IP
+  echo ""
+  echo "Checking ping to $i" 
   ping -n 4 $i
   # Skip traceroute if ping succeeds
   if ($LASTEXITCODE -ne 0) {
-   echo "" 
+   echo ""
+   echo "Checking tracert to $i" 
     tracert -w 1 -h 30 $i
   }
   echo "+---------------------------------------"
