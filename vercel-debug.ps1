@@ -1,5 +1,5 @@
 # Run these commands from the affected/problematic network
-# Once completed, send the file to Vercel support.
+# Once completed, send the file to Vercel support
 
 # Ask for domain and don't accept no domain
 # Also, we need to ensure not to pass an URL (https://example.com/path) 
@@ -21,13 +21,13 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($ip_addresses) -or $ip_addre
     echo "| Range lookup failed - $(if ([string]::IsNullOrEmpty($ip_addresses)) { 'No response from API' } else { $ip_addresses })"
     echo "+---------------------------------------"
     echo ""
-    exit 0
+    return
 } else {
     echo "| ${domain} IP range: $ip_addresses"
     echo "+---------------------------------------"
     echo ""
     # Parse response and convert to array
-    $ip_range = $ip_addresses -split ','
+    $ip_range = ($ip_addresses -split ',').Trim()
 }
 
 # Measure time 
@@ -55,8 +55,6 @@ echo ""
 
 # Test reachability to Vercel CNAME records
 ForEach ($i in $ip_range) {
-  # Trim any whitespace from IP address
-  $i = $i.Trim()
   echo "+---------------------------------------"
   echo "+------- Testing $i "
   echo "" 
