@@ -1,5 +1,5 @@
 # Run these commands from the affected/problematic network
-# Once completed, send the file to Vercel support
+# Once completed, send the file to Vercel support.
 
 # Ask for domain and don't accept no domain
 # Also, we need to ensure not to pass an URL (https://example.com/path) 
