@@ -53,16 +53,6 @@ echo ""
 echo "+---------------------------------------"
 echo ""
 
-# Test reachability to Vercel A record
-echo "+---------------------------------------"
-echo "+------- Testing 76.76.21.21 "
-echo "" 
-ping -n 4 76.76.21.21
-echo "" 
-tracert -w 1 -h 30 76.76.21.21
-echo "+---------------------------------------"
-echo ""
-
 # Test reachability to Vercel CNAME records
 ForEach ($i in $ip_range) {
   echo "+---------------------------------------"
